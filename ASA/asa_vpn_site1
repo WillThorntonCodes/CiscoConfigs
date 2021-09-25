@@ -1,0 +1,54 @@
+!ASA L2L VPN config
+!configure outside and inside interfaces
+!
+interface GigabitEthernet0/0
+ nameif outside
+ security-level 0
+ ip address 12.12.12.12 255.255.255.0 
+!
+interface GigabitEthernet0/1
+ nameif inside
+ security-level 100
+ ip address 172.16.10.1 255.255.255.0 
+!
+!configure tunnel group. use peer outside interface for name
+!
+tunnel-group 12.12.12.13 type ipsec-l2l
+tunnel-group 12.12.12.13 ipsec-attributes
+ ikev2 remote-authentication pre-shared-key cisco
+ ikev2 local-authentication pre-shared-key cisco
+!
+!configure access-list
+!
+access-list VPN10 extended permit ip 172.16.10.0 255.255.255.0 172.16.20.0 255.255.255.0 
+!
+!add route to remote site via the outside interface
+!
+route outside 172.16.20.0 255.255.255.0 12.12.12.13 1
+!
+!crypto ipsec-proposal
+!
+crypto ipsec ikev2 ipsec-proposal ipsec-pro
+ protocol esp encryption aes-256
+ protocol esp integrity sha-256
+!
+!crypto map settings. attach access-list,ipsec-proposal, and interface to crypto map
+!
+crypto map 10-20 10 match address VPN10
+crypto map 10-20 10 set peer 12.12.12.13
+crypto map 10-20 10 set ikev2 ipsec-proposal ipsec-pro
+crypto map 10-20 interface outside
+!
+!set ikev2 policy
+!
+crypto ikev2 policy 10
+ encryption aes-256
+ integrity sha256
+ group 14
+ prf sha256
+ lifetime seconds 86400
+!
+!enable ikev2 on outside interface
+crypto ikev2 enable outside
+
+ 
