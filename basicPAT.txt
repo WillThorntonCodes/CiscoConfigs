@@ -1,0 +1,20 @@
+!
+interface FastEthernet0/0
+ description internet
+ ip address dhcp
+ ip nat outside
+ ip virtual-reassembly
+ duplex auto
+ speed auto
+end
+!
+interface FastEthernet0/1
+ description LAN-MGT
+ ip address 192.168.1.1 255.255.255.0
+ ip nat inside
+ ip virtual-reassembly
+ duplex auto
+ speed auto
+end
+access-list 1 permit 192.168.1.0 0.0.0.255
+ip nat inside source list 1 interface fa 0/0 overload
