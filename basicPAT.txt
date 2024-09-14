@@ -1,3 +1,4 @@
+! Copy paste into CLI
 !
 interface FastEthernet0/0
  description internet
